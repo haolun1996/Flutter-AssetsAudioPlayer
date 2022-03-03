@@ -1521,10 +1521,31 @@ class _CurrentPlaylist {
     }
   }
 
+  int prevShuIndex = 0;
+  bool isShuffle = false;
+
   void selectNext() {
-    var index = indexList.indexWhere((element) => playlistIndex == element);
-    if (hasNext()) {
-      index = index + 1;
+    var index;
+    if(isShuffle){
+      var indexTestList = [];
+      for (var i = 0; i < playlist.audios.length; i++) {
+        indexTestList.add(i);
+      }
+      indexTestList.shuffle();
+      final random = Random();
+      index = indexTestList[random.nextInt(indexTestList.length)];
+      if(playlistIndex == index){
+        var tempList = indexTestList;
+        tempList.remove(index);
+        tempList.remove(prevShuIndex);
+        index = tempList[random.nextInt(tempList.length)];
+      }
+      prevShuIndex = index;
+    }else{
+      index = indexList.indexWhere((element) => playlistIndex == element);
+      if (hasNext()) {
+        index = index + 1;
+      }
     }
     playlistIndex = index;
   }
@@ -1538,6 +1559,7 @@ class _CurrentPlaylist {
   }
 
   void clearPlayerAudio(bool shuffle) {
+    isShuffle = shuffle;
     indexList.clear();
     if (shuffle) {
       shuffleAudios();
