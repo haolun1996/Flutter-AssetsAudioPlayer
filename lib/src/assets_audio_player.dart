@@ -73,7 +73,6 @@ class PlayerEditor {
         assetsAudioPlayer._playlist!.playlistIndex =
             assetsAudioPlayer._playlist!.playlistIndex - 1;
       }
-      assetsAudioPlayer._updatePlaylistIndexes();
       if (assetsAudioPlayer._playlist!.playlistIndex == index) {
         assetsAudioPlayer._openPlaylistCurrent();
       }
@@ -1040,10 +1039,8 @@ class AssetsAudioPlayer {
               audio.playSpeed ??
               this.playSpeed.valueOrNull ??
               defaultPlaySpeed,
-          'pitch': pitch ??
-              audio.pitch ??
-              this.pitch.valueOrNull ??
-              defaultPitch,
+          'pitch':
+              pitch ?? audio.pitch ?? this.pitch.valueOrNull ?? defaultPitch,
         };
         if (seek != null) {
           params['seek'] = seek.inMilliseconds.round();
@@ -1058,14 +1055,13 @@ class AssetsAudioPlayer {
               audio.networkHeaders ?? networkSettings.defaultHeaders;
         }
 
-        if(audio.drmConfiguration != null){
-          var drmMap  ={};
+        if (audio.drmConfiguration != null) {
+          var drmMap = {};
           drmMap['drmType'] = audio.drmConfiguration!.drmType.toString();
-          if(audio.drmConfiguration!.drmType==DrmType.clearKey){
+          if (audio.drmConfiguration!.drmType == DrmType.clearKey) {
             drmMap['clearKey'] = audio.drmConfiguration!.clearKey;
           }
           params['drmConfiguration'] = drmMap;
-
         }
 
         //region notifs
@@ -1127,21 +1123,20 @@ class AssetsAudioPlayer {
     }
   }
 
-  Future<void> _openPlaylist(
-    Playlist playlist, {
-    bool autoStart = _DEFAULT_AUTO_START,
-    double? volume,
-    bool respectSilentMode = _DEFAULT_RESPECT_SILENT_MODE,
-    bool showNotification = _DEFAULT_SHOW_NOTIFICATION,
-    Duration? seek,
-    double? playSpeed,
-    double? pitch,
-    LoopMode? loopMode,
-    NotificationSettings? notificationSettings,
-    PlayInBackground? playInBackground,
-    HeadPhoneStrategy headPhoneStrategy = _DEFAULT_HEADPHONE_STRATEGY,
-    AudioFocusStrategy? audioFocusStrategy,
-  }) async {
+  Future<void> _openPlaylist(Playlist playlist,
+      {bool autoStart = _DEFAULT_AUTO_START,
+      double? volume,
+      bool respectSilentMode = _DEFAULT_RESPECT_SILENT_MODE,
+      bool showNotification = _DEFAULT_SHOW_NOTIFICATION,
+      Duration? seek,
+      double? playSpeed,
+      double? pitch,
+      LoopMode? loopMode,
+      NotificationSettings? notificationSettings,
+      PlayInBackground? playInBackground,
+      HeadPhoneStrategy headPhoneStrategy = _DEFAULT_HEADPHONE_STRATEGY,
+      AudioFocusStrategy? audioFocusStrategy,
+      bool initShuffle = false}) async {
     _lastSeek = null;
     _replaceRealtimeSubscription();
     _playlist = _CurrentPlaylist(
@@ -1158,7 +1153,13 @@ class AssetsAudioPlayer {
       headPhoneStrategy: headPhoneStrategy,
     );
     _updatePlaylistIndexes();
-    _playlist!.moveTo(playlist.startIndex);
+    if (initShuffle) {
+      final random = Random();
+      var index = random.nextInt(playlist.audios.length);
+      _playlist!.moveTo(index);
+    } else {
+      _playlist!.moveTo(playlist.startIndex);
+    }
 
     playlist.setCurrentlyOpenedIn(_playerEditor);
 
@@ -1182,22 +1183,21 @@ class AssetsAudioPlayer {
   ///       assets:
   ///         - assets/audios/
   ///
-  Future<void> open(
-    Playable playable, {
-    bool autoStart = _DEFAULT_AUTO_START,
-    double? volume,
-    bool respectSilentMode = _DEFAULT_RESPECT_SILENT_MODE,
-    bool showNotification = _DEFAULT_SHOW_NOTIFICATION,
-    Duration? seek,
-    double? playSpeed,
-    double? pitch,
-    NotificationSettings? notificationSettings,
-    LoopMode loopMode = _DEFAULT_LOOP_MODE,
-    PlayInBackground playInBackground = _DEFAULT_PLAY_IN_BACKGROUND,
-    HeadPhoneStrategy headPhoneStrategy = _DEFAULT_HEADPHONE_STRATEGY,
-    AudioFocusStrategy? audioFocusStrategy,
-    bool forceOpen = false, // skip the _acceptUserOpen
-  }) async {
+  Future<void> open(Playable playable,
+      {bool autoStart = _DEFAULT_AUTO_START,
+      double? volume,
+      bool respectSilentMode = _DEFAULT_RESPECT_SILENT_MODE,
+      bool showNotification = _DEFAULT_SHOW_NOTIFICATION,
+      Duration? seek,
+      double? playSpeed,
+      double? pitch,
+      NotificationSettings? notificationSettings,
+      LoopMode loopMode = _DEFAULT_LOOP_MODE,
+      PlayInBackground playInBackground = _DEFAULT_PLAY_IN_BACKGROUND,
+      HeadPhoneStrategy headPhoneStrategy = _DEFAULT_HEADPHONE_STRATEGY,
+      AudioFocusStrategy? audioFocusStrategy,
+      bool forceOpen = false, // skip the _acceptUserOpen
+      bool initShuffle = false}) async {
     final focusStrategy = audioFocusStrategy ?? defaultFocusStrategy;
 
     if (forceOpen) {
@@ -1218,22 +1218,21 @@ class AssetsAudioPlayer {
       }
 
       if (playlist != null) {
-        await _openPlaylist(
-          playlist,
-          autoStart: autoStart,
-          volume: volume,
-          respectSilentMode: respectSilentMode,
-          showNotification: showNotification,
-          seek: seek,
-          loopMode: loopMode,
-          playSpeed: playSpeed,
-          pitch: pitch,
-          headPhoneStrategy: headPhoneStrategy,
-          audioFocusStrategy: focusStrategy,
-          notificationSettings:
-              notificationSettings ?? defaultNotificationSettings,
-          playInBackground: playInBackground,
-        );
+        await _openPlaylist(playlist,
+            autoStart: autoStart,
+            volume: volume,
+            respectSilentMode: respectSilentMode,
+            showNotification: showNotification,
+            seek: seek,
+            loopMode: loopMode,
+            playSpeed: playSpeed,
+            pitch: pitch,
+            headPhoneStrategy: headPhoneStrategy,
+            audioFocusStrategy: focusStrategy,
+            notificationSettings:
+                notificationSettings ?? defaultNotificationSettings,
+            playInBackground: playInBackground,
+            initShuffle: initShuffle);
       }
       _acceptUserOpen = true;
     } catch (t) {
@@ -1526,7 +1525,7 @@ class _CurrentPlaylist {
 
   void selectNext() {
     var index;
-    if(isShuffle){
+    if (isShuffle) {
       var indexTestList = [];
       for (var i = 0; i < playlist.audios.length; i++) {
         indexTestList.add(i);
@@ -1534,14 +1533,14 @@ class _CurrentPlaylist {
       indexTestList.shuffle();
       final random = Random();
       index = indexTestList[random.nextInt(indexTestList.length)];
-      if(playlistIndex == index){
+      if (playlistIndex == index) {
         var tempList = indexTestList;
         tempList.remove(index);
         tempList.remove(prevShuIndex);
         index = tempList[random.nextInt(tempList.length)];
       }
       prevShuIndex = index;
-    }else{
+    } else {
       index = indexList.indexWhere((element) => playlistIndex == element);
       if (hasNext()) {
         index = index + 1;
