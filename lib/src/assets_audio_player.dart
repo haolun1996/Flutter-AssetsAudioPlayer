@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 import 'dart:io';
 import 'dart:math';
 
@@ -489,7 +490,14 @@ class AssetsAudioPlayer {
   /// if it was'nt shuffling -> now it is
   void toggleShuffle() {
     shuffle = !shuffle;
-    _updatePlaylistIndexes();
+    // _updatePlaylistIndexes();
+    _updatePlaylist();
+  }
+
+  void _updatePlaylist() {
+    if (_playlist != null && oriPlayList != null) {
+      _playlist!.shuffle(shuffle);
+    }
   }
 
   /// Call it to dispose stream
@@ -1040,10 +1048,8 @@ class AssetsAudioPlayer {
               audio.playSpeed ??
               this.playSpeed.valueOrNull ??
               defaultPlaySpeed,
-          'pitch': pitch ??
-              audio.pitch ??
-              this.pitch.valueOrNull ??
-              defaultPitch,
+          'pitch':
+              pitch ?? audio.pitch ?? this.pitch.valueOrNull ?? defaultPitch,
         };
         if (seek != null) {
           params['seek'] = seek.inMilliseconds.round();
@@ -1058,14 +1064,13 @@ class AssetsAudioPlayer {
               audio.networkHeaders ?? networkSettings.defaultHeaders;
         }
 
-        if(audio.drmConfiguration != null){
-          var drmMap  ={};
+        if (audio.drmConfiguration != null) {
+          var drmMap = {};
           drmMap['drmType'] = audio.drmConfiguration!.drmType.toString();
-          if(audio.drmConfiguration!.drmType==DrmType.clearKey){
+          if (audio.drmConfiguration!.drmType == DrmType.clearKey) {
             drmMap['clearKey'] = audio.drmConfiguration!.clearKey;
           }
           params['drmConfiguration'] = drmMap;
-
         }
 
         //region notifs
@@ -1127,23 +1132,28 @@ class AssetsAudioPlayer {
     }
   }
 
-  Future<void> _openPlaylist(
-    Playlist playlist, {
-    bool autoStart = _DEFAULT_AUTO_START,
-    double? volume,
-    bool respectSilentMode = _DEFAULT_RESPECT_SILENT_MODE,
-    bool showNotification = _DEFAULT_SHOW_NOTIFICATION,
-    Duration? seek,
-    double? playSpeed,
-    double? pitch,
-    LoopMode? loopMode,
-    NotificationSettings? notificationSettings,
-    PlayInBackground? playInBackground,
-    HeadPhoneStrategy headPhoneStrategy = _DEFAULT_HEADPHONE_STRATEGY,
-    AudioFocusStrategy? audioFocusStrategy,
-  }) async {
+  Playlist? oriPlayList;
+
+  Future<void> _openPlaylist(Playlist playlist,
+      {bool autoStart = _DEFAULT_AUTO_START,
+      double? volume,
+      bool respectSilentMode = _DEFAULT_RESPECT_SILENT_MODE,
+      bool showNotification = _DEFAULT_SHOW_NOTIFICATION,
+      Duration? seek,
+      double? playSpeed,
+      double? pitch,
+      LoopMode? loopMode,
+      NotificationSettings? notificationSettings,
+      PlayInBackground? playInBackground,
+      HeadPhoneStrategy headPhoneStrategy = _DEFAULT_HEADPHONE_STRATEGY,
+      AudioFocusStrategy? audioFocusStrategy,
+      bool initShuffle = false}) async {
     _lastSeek = null;
     _replaceRealtimeSubscription();
+    oriPlayList = playlist;
+    if (initShuffle) {
+      playlist.audios.shuffle();
+    }
     _playlist = _CurrentPlaylist(
       playlist: playlist,
       volume: volume,
@@ -1197,6 +1207,7 @@ class AssetsAudioPlayer {
     HeadPhoneStrategy headPhoneStrategy = _DEFAULT_HEADPHONE_STRATEGY,
     AudioFocusStrategy? audioFocusStrategy,
     bool forceOpen = false, // skip the _acceptUserOpen
+    bool initShuffle = false,
   }) async {
     final focusStrategy = audioFocusStrategy ?? defaultFocusStrategy;
 
@@ -1233,6 +1244,7 @@ class AssetsAudioPlayer {
           notificationSettings:
               notificationSettings ?? defaultNotificationSettings,
           playInBackground: playInBackground,
+          initShuffle: initShuffle,
         );
       }
       _acceptUserOpen = true;
@@ -1488,7 +1500,7 @@ class AssetsAudioPlayer {
 }
 
 class _CurrentPlaylist {
-  final Playlist playlist;
+  Playlist playlist;
 
   final double? volume;
   final bool? respectSilentMode;
@@ -1526,7 +1538,7 @@ class _CurrentPlaylist {
 
   void selectNext() {
     var index;
-    if(isShuffle){
+    if (isShuffle) {
       var indexTestList = [];
       for (var i = 0; i < playlist.audios.length; i++) {
         indexTestList.add(i);
@@ -1534,14 +1546,14 @@ class _CurrentPlaylist {
       indexTestList.shuffle();
       final random = Random();
       index = indexTestList[random.nextInt(indexTestList.length)];
-      if(playlistIndex == index){
+      if (playlistIndex == index) {
         var tempList = indexTestList;
         tempList.remove(index);
         tempList.remove(prevShuIndex);
         index = tempList[random.nextInt(tempList.length)];
       }
       prevShuIndex = index;
-    }else{
+    } else {
       index = indexList.indexWhere((element) => playlistIndex == element);
       if (hasNext()) {
         index = index + 1;
@@ -1603,6 +1615,18 @@ class _CurrentPlaylist {
 
   Audio? currentAudio() {
     return audioAt(at: indexList[playlistIndex]);
+  }
+
+  void shuffle(bool shuf) {
+    var current = currentAudio();
+    if (shuf) {
+      playlist.audios.shuffle();
+    } else {
+      playlist.audios.sort((a, b) => a.id.compareTo(b.id));
+    }
+    var index =
+        playlist.audios.indexWhere((element) => element.id == current!.id);
+    playlistIndex = index;
   }
 
   bool hasNext() {
