@@ -9,6 +9,8 @@ class AudioWidget extends StatefulWidget {
 
   final Audio audio;
 
+  final int id;
+
   final double volume;
   final bool play;
   final LoopMode loopMode;
@@ -22,6 +24,7 @@ class AudioWidget extends StatefulWidget {
     Key? key,
     required this.audio,
     required this.child,
+    required this.id,
     this.volume = 1.0,
     this.play = true,
     this.loopMode = LoopMode.none,
@@ -35,6 +38,7 @@ class AudioWidget extends StatefulWidget {
     Key? key,
     required this.child,
     required String path,
+    required this.id,
     String? package,
     this.volume = 1.0,
     this.play = true,
@@ -43,13 +47,14 @@ class AudioWidget extends StatefulWidget {
     this.initialPosition = const Duration(),
     this.onReadyToPlay,
     this.onFinished,
-  })  : audio = Audio(path, package: package),
+  })  : audio = Audio(id, path, package: package),
         super(key: key);
 
   AudioWidget.network({
     Key? key,
     required this.child,
     required String url,
+    required this.id,
     this.volume = 1.0,
     this.play = true,
     this.loopMode = LoopMode.none,
@@ -57,13 +62,14 @@ class AudioWidget extends StatefulWidget {
     this.initialPosition = const Duration(),
     this.onReadyToPlay,
     this.onFinished,
-  })  : audio = Audio.network(url),
+  })  : audio = Audio.network(id, url),
         super(key: key);
 
   AudioWidget.file({
     Key? key,
     required this.child,
     required String path,
+    required this.id,
     this.volume = 1.0,
     this.play = true,
     this.loopMode = LoopMode.none,
@@ -71,13 +77,14 @@ class AudioWidget extends StatefulWidget {
     this.initialPosition = const Duration(),
     this.onReadyToPlay,
     this.onFinished,
-  })  : audio = Audio.network(path),
+  })  : audio = Audio.network(id, path),
         super(key: key);
 
   @override
   _AudioWidgetState createState() => _AudioWidgetState();
 
   AudioWidget copyWith({
+    int? id,
     Widget? child,
     Audio? audio,
     double? volume,
@@ -89,6 +96,7 @@ class AudioWidget extends StatefulWidget {
     Duration? initialPosition,
   }) {
     return AudioWidget(
+      id: id ?? this.id,
       audio: audio ?? this.audio,
       loopMode: loopMode ?? this.loopMode,
       volume: volume ?? this.volume,
