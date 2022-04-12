@@ -494,7 +494,7 @@ class AssetsAudioPlayer {
   }
 
   void _updatePlaylist() {
-    if (_playlist != null && oriPlayList != null) {
+    if (_playlist != null) {
       _playlist!.shuffle(shuffle);
     }
   }
@@ -1147,7 +1147,6 @@ class AssetsAudioPlayer {
       bool initShuffle = false}) async {
     _lastSeek = null;
     _replaceRealtimeSubscription();
-    oriPlayList = playlist;
     if (initShuffle) {
       playlist.audios.shuffle();
     }
