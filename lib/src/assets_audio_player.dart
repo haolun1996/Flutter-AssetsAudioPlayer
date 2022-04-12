@@ -74,7 +74,6 @@ class PlayerEditor {
         assetsAudioPlayer._playlist!.playlistIndex =
             assetsAudioPlayer._playlist!.playlistIndex - 1;
       }
-      assetsAudioPlayer._updatePlaylistIndexes();
       if (assetsAudioPlayer._playlist!.playlistIndex == index) {
         assetsAudioPlayer._openPlaylistCurrent();
       }
@@ -1132,8 +1131,6 @@ class AssetsAudioPlayer {
     }
   }
 
-  Playlist? oriPlayList;
-
   Future<void> _openPlaylist(Playlist playlist,
       {bool autoStart = _DEFAULT_AUTO_START,
       double? volume,
@@ -1168,7 +1165,13 @@ class AssetsAudioPlayer {
       headPhoneStrategy: headPhoneStrategy,
     );
     _updatePlaylistIndexes();
-    _playlist!.moveTo(playlist.startIndex);
+    if (initShuffle) {
+      final random = Random();
+      var index = random.nextInt(playlist.audios.length);
+      _playlist!.moveTo(index);
+    } else {
+      _playlist!.moveTo(playlist.startIndex);
+    }
 
     playlist.setCurrentlyOpenedIn(_playerEditor);
 
