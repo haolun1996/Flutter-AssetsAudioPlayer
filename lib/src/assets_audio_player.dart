@@ -562,7 +562,7 @@ class AssetsAudioPlayer {
           _notificationStop();
           break;
         case METHOD_NOTIFICATION_PLAY_OR_PAUSE: // eg: from notification
-          _notificationPlayPause();
+          // _notificationPlayPause();
           break;
         case METHOD_ERROR:
           _handleOnError(call.arguments);
@@ -618,9 +618,9 @@ class AssetsAudioPlayer {
 
           break;
         case METHOD_IS_PLAYING:
-          // final bool playing = call.arguments;
-          // _isPlaying.add(playing);
-          // _playerState.add(playing ? PlayerState.play : PlayerState.pause);
+          final bool playing = call.arguments;
+          _isPlaying.add(playing);
+          _playerState.add(playing ? PlayerState.play : PlayerState.pause);
           break;
         case METHOD_VOLUME:
           _volume.add(call.arguments);
