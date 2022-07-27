@@ -74,9 +74,9 @@ class PlayerEditor {
         assetsAudioPlayer._playlist!.playlistIndex =
             assetsAudioPlayer._playlist!.playlistIndex - 1;
       }
-      if (assetsAudioPlayer._playlist!.playlistIndex == index) {
-        assetsAudioPlayer._openPlaylistCurrent();
-      }
+//       if (assetsAudioPlayer._playlist!.playlistIndex == index) {
+//         assetsAudioPlayer._openPlaylistCurrent();
+//       }
     }
   }
 
