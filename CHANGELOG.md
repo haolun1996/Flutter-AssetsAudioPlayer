@@ -1,3 +1,15 @@
+## 3.0.6
+* Update kotling version and fix minor issues
+## 3.0.5
+* Breaking change, with Flutter 3.0 removed null aware for WidgetsBinding 
+## 3.0.4+5
+* Fixed null aware
+## 3.0.4+4
+* Fix issues and update exoplayer
+## 3.0.4+3
+* Fix warnings and abstract issue
+## 3.0.4+2
+* Fix flutter 3.0 issues
 ## 3.0.4+1
 * Fix andorid 12 issues and update exoplayer and gradles
 ## 3.0.4
