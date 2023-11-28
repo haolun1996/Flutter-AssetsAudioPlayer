@@ -204,10 +204,10 @@ public class Player : NSObject, AVAudioPlayerDelegate {
     }
     
     func hideNotification() {
-        #if os(iOS)
-        self.deinitMediaPlayerNotifEvent()
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = [:] //empty
-        #endif
+        // #if os(iOS)
+        // self.deinitMediaPlayerNotifEvent()
+        // MPNowPlayingInfoCenter.default().nowPlayingInfo = [:] //empty
+        // #endif
     }
     
     func invokeListenerPlayPause(){
@@ -309,27 +309,27 @@ public class Player : NSObject, AVAudioPlayerDelegate {
     #endif
     
     func updateNotifStatus(playing: Bool, stopped: Bool, rate: Float?) {
-        if(self.displayMediaPlayerNotification){
-            #if os(iOS)
-            if #available(iOS 13.0, *) {
-                if(stopped) {
-                    MPNowPlayingInfoCenter.default().playbackState = .stopped
-                } else {
-                    if(playing){
-                        MPNowPlayingInfoCenter.default().playbackState = .playing
-                    } else {
-                        MPNowPlayingInfoCenter.default().playbackState = .paused
-                    }
-                }
-            }
-            if(!playing){
-                self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0
-            } else {
-                self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = rate
-            }
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
-            #endif
-        }
+        // if(self.displayMediaPlayerNotification){
+        //     #if os(iOS)
+        //     if #available(iOS 13.0, *) {
+        //         if(stopped) {
+        //             MPNowPlayingInfoCenter.default().playbackState = .stopped
+        //         } else {
+        //             if(playing){
+        //                 MPNowPlayingInfoCenter.default().playbackState = .playing
+        //             } else {
+        //                 MPNowPlayingInfoCenter.default().playbackState = .paused
+        //             }
+        //         }
+        //     }
+        //     if(!playing){
+        //         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0
+        //     } else {
+        //         self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = rate
+        //     }
+        //     MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+        //     #endif
+        // }
     }
     
     #if os(iOS)
@@ -381,7 +381,7 @@ public class Player : NSObject, AVAudioPlayerDelegate {
         
         //print(self.nowPlayingInfo.description)
         
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+        // MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
         
         //load image async
         if let imageMetasType = self.audioMetas?.imageType {
@@ -400,11 +400,11 @@ public class Player : NSObject, AVAudioPlayerDelegate {
                                     if(!imagePath.isEmpty){
                                         let image: UIImage = UIImage(contentsOfFile: imagePath)!
                                         DispatchQueue.main.async {
-                                            if(self.audioMetas == audioMetas){ //always the sam song ?
-                                                self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (size) -> UIImage in
-                                                    return image
-                                                })
-                                                MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+                                            // if(self.audioMetas == audioMetas){ //always the sam song ?
+                                            //     self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size, requestHandler: { (size) -> UIImage in
+                                            //         return image
+                                            //     })
+                                            //     MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
                                             }
                                         }
                                     }
@@ -422,8 +422,8 @@ public class Player : NSObject, AVAudioPlayerDelegate {
                                         if(self.audioMetas == audioMetas){ //always the sam song ?
                                             print(self.nowPlayingInfo.description)
                                             
-                                            self.nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
-                                            MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+                                            // self.nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+                                            // MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
                                         }
                                     }
                                 }
@@ -897,11 +897,11 @@ public class Player : NSObject, AVAudioPlayerDelegate {
                 self.channel.invokeMethod(Music.METHOD_POSITION, arguments: newValue)
                 
                 if(self.displayMediaPlayerNotification){
-                    #if os(iOS)
-                    self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = _currentTime / 1000
-                    self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.player!.rate
-                    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
-                    #endif
+                    // #if os(iOS)
+                    // self.nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = _currentTime / 1000
+                    // self.nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.player!.rate
+                    // MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+                    // #endif
                 }
             }
         }
