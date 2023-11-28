@@ -405,7 +405,7 @@ public class Player : NSObject, AVAudioPlayerDelegate {
                                             //         return image
                                             //     })
                                             //     MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
-                                            }
+                                            // }
                                         }
                                     }
                                 }
